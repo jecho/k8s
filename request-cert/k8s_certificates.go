@@ -158,6 +158,17 @@ func getKubernetesCertificate(csrName string, csr []byte, wantServerAuth bool, a
 		case <-time.After(time.Second * 30):
 			// Print a "still waiting" message every 30s.
 			fmt.Printf("%s: waiting for 'kubectl certificate approve %s'\n", time.Now(), req.Name)
+
+			// if not approved manually, approve itself from time.After's duration
+			resp.Status.Conditions = append(resp.Status.Conditions, certificates.CertificateSigningRequestCondition{
+				Type:    certificates.CertificateApproved,
+				Reason:  "AutoApproved",
+				Message: "CSR was approved",
+			})
+			_, err = client.CertificatesV1beta1().CertificateSigningRequests().UpdateApproval(resp)
+			if err != nil {
+				return nil, errors.Wrapf(err, "CertificateSigningRequest approval failed: %v", csrName)
+			}
 			continue
 		}
 	}

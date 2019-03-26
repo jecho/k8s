@@ -48,7 +48,7 @@ var (
 
 func main() {
 	flag.Parse()
-	flag.Lookup("logtostderr").Value.Set("true")
+//	flag.Lookup("logtostderr").Value.Set("true")
 
 	// Validate flags.
 	if len(*namespace) == 0 {
